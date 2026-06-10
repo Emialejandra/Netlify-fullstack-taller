@@ -1,23 +1,28 @@
+
 <!doctype html>
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Formulario Fullstack con Netlify</title>
+
   <style>
     * { box-sizing: border-box; }
+
     body {
       margin: 0;
       font-family: Arial, sans-serif;
       background: #ecfeff;
       color: #0f172a;
     }
+
     header {
       background: linear-gradient(135deg, #0f766e, #0891b2);
       color: white;
       padding: 32px 20px;
       text-align: center;
     }
+
     main {
       max-width: 980px;
       margin: 30px auto;
@@ -26,14 +31,23 @@
       grid-template-columns: 1fr 1fr;
       gap: 20px;
     }
+
     .card {
       background: white;
       padding: 24px;
       border-radius: 18px;
       box-shadow: 0 10px 30px rgba(0,0,0,.12);
     }
-    label { display: block; margin-top: 12px; font-weight: bold; }
-    input, textarea, button {
+
+    label {
+      display: block;
+      margin-top: 12px;
+      font-weight: bold;
+    }
+
+    input,
+    textarea,
+    button {
       width: 100%;
       padding: 12px;
       margin-top: 8px;
@@ -41,6 +55,7 @@
       border-radius: 10px;
       font-size: 1rem;
     }
+
     button {
       background: #0f766e;
       color: white;
@@ -48,16 +63,35 @@
       cursor: pointer;
       font-weight: bold;
     }
-    button:hover { background: #115e59; }
-    button:disabled { background: #94a3b8; cursor: not-allowed; }
+
+    button:hover {
+      background: #115e59;
+    }
+
+    button:disabled {
+      background: #94a3b8;
+      cursor: not-allowed;
+    }
+
     .estado {
       margin-top: 14px;
       padding: 12px;
       border-radius: 10px;
       display: none;
     }
-    .ok { display:block; background:#dcfce7; color:#166534; }
-    .error { display:block; background:#fee2e2; color:#991b1b; }
+
+    .ok {
+      display: block;
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .error {
+      display: block;
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
     .mensaje {
       border: 1px solid #e2e8f0;
       padding: 14px;
@@ -65,50 +99,114 @@
       margin: 12px 0;
       background: #f8fafc;
     }
-    .mensaje b { color: #0f766e; }
-    .fecha { color:#64748b; font-size:.85rem; }
+
+    .mensaje b {
+      color: #0f766e;
+    }
+
+    .fecha {
+      color: #64748b;
+      font-size: .85rem;
+    }
+
+    #contador {
+      margin-top: 8px;
+      color: #64748b;
+      font-size: .9rem;
+    }
+
     @media(max-width: 800px) {
-      main { grid-template-columns: 1fr; }
+      main {
+        grid-template-columns: 1fr;
+      }
     }
   </style>
 </head>
+
 <body>
+
   <header>
     <h1>App Fullstack con Netlify</h1>
     <p>Frontend HTML + Backend con Netlify Functions</p>
   </header>
 
   <main>
+
     <section class="card">
+
       <h2>Enviar mensaje</h2>
+
       <form id="formMensaje">
+
         <label for="nombre">Nombre</label>
-        <input id="nombre" name="nombre" placeholder="Ej. Emilia" required />
+        <input
+          id="nombre"
+          name="nombre"
+          placeholder="Ej. Juan"
+          required
+        />
 
         <label for="email">Email</label>
-        <input id="email" name="email" type="email" placeholder="correo@ejemplo.com" required />
+        <input
+          id="email"
+          name="email"
+          type="email"
+          placeholder="correo@ejemplo.com"
+          required
+        />
 
         <label for="mensaje">Mensaje</label>
-        <textarea id="mensaje" name="mensaje" rows="5" placeholder="Escribe un mensaje..." required></textarea>
+        <textarea
+          id="mensaje"
+          name="mensaje"
+          rows="5"
+          placeholder="Escribe un mensaje..."
+          required
+        ></textarea>
 
-        <button id="btnEnviar" type="submit">Enviar al backend</button>
+        <!-- RETO 1: CONTADOR DE CARACTERES -->
+        <p id="contador">Caracteres: 0</p>
+
+        <button id="btnEnviar" type="submit">
+          Enviar al backend
+        </button>
+
       </form>
+
       <div id="estado" class="estado"></div>
+
     </section>
 
     <section class="card">
+
       <h2>Mensajes</h2>
-      <button id="btnCargar">Cargar mensajes demo</button>
+
+      <button id="btnCargar">
+        Cargar mensajes demo
+      </button>
+
+      <!-- RETO 3: BOTÓN LIMPIAR -->
+      <button id="btnLimpiar">
+        Limpiar mensajes
+      </button>
+
       <div id="listaMensajes"></div>
+
     </section>
+
   </main>
 
   <script>
+
     const form = document.getElementById("formMensaje");
     const estado = document.getElementById("estado");
     const listaMensajes = document.getElementById("listaMensajes");
     const btnEnviar = document.getElementById("btnEnviar");
     const btnCargar = document.getElementById("btnCargar");
+    const btnLimpiar = document.getElementById("btnLimpiar");
+
+    const txtMensaje = document.getElementById("mensaje");
+    const contador = document.getElementById("contador");
 
     const API_BASE = "/api";
 
@@ -118,70 +216,205 @@
     }
 
     function renderMensaje(item) {
+
       const div = document.createElement("div");
+
       div.className = "mensaje";
+
       div.innerHTML = `
-        <b>${item.nombre}</b> <span>(${item.email})</span>
+        <b>${item.nombre}</b>
+        <span>(${item.email})</span>
+
         <p>${item.mensaje}</p>
-        <div class="fecha">${new Date(item.fecha).toLocaleString()}</div>
+
+        <div class="fecha">
+          ${new Date(item.created_at).toLocaleString()}
+        </div>
       `;
+
       listaMensajes.prepend(div);
     }
 
+    // RETO 4: GUARDAR MENSAJES EN LOCALSTORAGE
+    function guardarLocalStorage(item) {
+
+      const mensajes =
+        JSON.parse(localStorage.getItem("mensajes")) || [];
+
+      mensajes.unshift(item);
+
+      localStorage.setItem(
+        "mensajes",
+        JSON.stringify(mensajes)
+      );
+    }
+
     async function cargarMensajes() {
+
       listaMensajes.innerHTML = "<p>Cargando...</p>";
+
       try {
-        const response = await fetch(`${API_BASE}/mensajes`);
-        const result = await response.json();
+
+        const response =
+          await fetch(`${API_BASE}/mensajes`);
+
+        const result =
+          await response.json();
 
         if (!response.ok) {
-          throw new Error(result.error || "No se pudieron cargar los mensajes");
+          throw new Error(
+            result.error ||
+            "No se pudieron cargar los mensajes"
+          );
         }
 
         listaMensajes.innerHTML = "";
+
         result.data.forEach(renderMensaje);
+
       } catch (error) {
-        listaMensajes.innerHTML = `<p style="color:red">${error.message}</p>`;
+
+        listaMensajes.innerHTML =
+          `<p style="color:red">${error.message}</p>`;
       }
     }
 
+    // RETO 1: CONTADOR DE CARACTERES EN TIEMPO REAL
+    txtMensaje.addEventListener("input", () => {
+
+      contador.textContent =
+        `Caracteres: ${txtMensaje.value.length}`;
+
+    });
+
     form.addEventListener("submit", async (event) => {
+
       event.preventDefault();
+
       btnEnviar.disabled = true;
       btnEnviar.textContent = "Enviando...";
-      mostrarEstado("Enviando datos al backend...", "ok");
+
+      mostrarEstado(
+        "Enviando datos al backend...",
+        "ok"
+      );
 
       const data = {
-        nombre: document.getElementById("nombre").value.trim(),
-        email: document.getElementById("email").value.trim(),
-        mensaje: document.getElementById("mensaje").value.trim()
+
+        nombre:
+          document.getElementById("nombre")
+          .value.trim(),
+
+        email:
+          document.getElementById("email")
+          .value.trim(),
+
+        mensaje:
+          document.getElementById("mensaje")
+          .value.trim()
       };
 
-      try {
-        const response = await fetch(`${API_BASE}/mensajes`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(data)
-        });
+      // RETO 2: VALIDACIÓN FRONTEND
+      if (data.mensaje.length < 10) {
 
-        const result = await response.json();
+        mostrarEstado(
+          "El mensaje debe tener al menos 10 caracteres.",
+          "error"
+        );
+
+        btnEnviar.disabled = false;
+        btnEnviar.textContent = "Enviar al backend";
+
+        return;
+      }
+
+      try {
+
+        const response =
+          await fetch(`${API_BASE}/mensajes`, {
+
+            method: "POST",
+
+            headers: {
+              "Content-Type": "application/json"
+            },
+
+            body: JSON.stringify(data)
+
+          });
+
+        const result =
+          await response.json();
 
         if (!response.ok) {
-          throw new Error(result.error || "Error al enviar");
+
+          throw new Error(
+            result.error ||
+            "Error al enviar"
+          );
         }
 
-        mostrarEstado(result.message, "ok");
+        mostrarEstado(
+          result.message,
+          "ok"
+        );
+
         renderMensaje(result.data);
+
+        // RETO 4: GUARDAR EN LOCALSTORAGE
+        guardarLocalStorage(result.data);
+
         form.reset();
+
+        contador.textContent = "Caracteres: 0";
+
       } catch (error) {
-        mostrarEstado(error.message, "error");
+
+        mostrarEstado(
+          error.message,
+          "error"
+        );
+
       } finally {
+
         btnEnviar.disabled = false;
         btnEnviar.textContent = "Enviar al backend";
       }
     });
 
-    btnCargar.addEventListener("click", cargarMensajes);
+    btnCargar.addEventListener(
+      "click",
+      cargarMensajes
+    );
+
+    // RETO 3: LIMPIAR MENSAJES Y LOCALSTORAGE
+    btnLimpiar.addEventListener("click", () => {
+
+      listaMensajes.innerHTML = "";
+
+      localStorage.removeItem("mensajes");
+
+      mostrarEstado(
+        "Mensajes eliminados.",
+        "ok"
+      );
+    });
+
+    // RETO 4: CARGAR MENSAJES AL ABRIR LA PÁGINA
+    window.addEventListener(
+      "DOMContentLoaded",
+      () => {
+
+        const mensajes =
+          JSON.parse(
+            localStorage.getItem("mensajes")
+          ) || [];
+
+        mensajes.forEach(renderMensaje);
+      }
+    );
+
   </script>
+
 </body>
 </html>
